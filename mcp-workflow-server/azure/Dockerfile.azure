@@ -1,0 +1,62 @@
+# Azure-optimized Dockerfile
+FROM node:20-alpine AS builder
+
+RUN apk add --no-cache python3 make g++
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm ci
+
+COPY tsconfig.json ./
+COPY src ./src
+COPY config ./config
+
+# Build with Azure optimizations
+ENV NODE_ENV=production
+RUN npm run build || npx tsc src/simple-server.ts --outDir dist --esModuleInterop --skipLibCheck
+
+# Production stage - Azure optimized
+FROM node:20-alpine
+
+# Azure App Service expects port 8080 by default
+ENV PORT=8080
+ENV NODE_ENV=production
+
+RUN apk add --no-cache dumb-init
+
+# Create app user
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nodejs -u 1001
+
+WORKDIR /app
+
+# Copy and install production dependencies
+COPY package*.json ./
+RUN npm ci --only=production --omit=dev && \
+    npm cache clean --force
+
+# Copy application
+COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
+COPY --chown=nodejs:nodejs config ./config
+COPY --chown=nodejs:nodejs README.md ./
+
+# Azure App Service health check expects this path
+RUN mkdir -p /home/site/wwwroot && \
+    ln -s /app /home/site/wwwroot/app
+
+# Create directories
+RUN mkdir -p logs quality-reports && \
+    chown -R nodejs:nodejs logs quality-reports /home/site
+
+USER nodejs
+
+# Azure uses PORT environment variable
+EXPOSE 8080
+
+# Health check endpoint
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:' + (process.env.PORT || 8080) + '/health', (r) => r.statusCode === 200 ? process.exit(0) : process.exit(1))"
+
+ENTRYPOINT ["dumb-init", "--"]
+CMD ["sh", "-c", "node dist/index.js || node dist/simple-server.js"]

@@ -1,0 +1,45 @@
+# MCP Workflow Server Configuration
+
+server:
+  port: 3000
+  host: localhost
+  protocol: both  # Options: http, ws, both, stdio
+  cors:
+    enabled: true
+    origins:
+      - "*"  # In production, specify allowed origins
+
+mcp:
+  capabilities:
+    resources: true
+    tools: true
+    prompts: true
+  timeout: 30000  # 30 seconds
+  maxRequestSize: 10mb
+
+workflow:
+  autoGenerateSpecs: true
+  requireApproval: true
+  maxTasksPerBatch: 10
+  steeringFilesPath: ./steering
+
+quality:
+  enableGatekeeper: true
+  blockOnViolations: true
+  autoFix: false
+  reportPath: ./quality-reports
+
+hooks:
+  enabled: true
+  concurrency: 5
+  timeout: 5000  # 5 seconds per hook
+
+logging:
+  level: info  # Options: error, warn, info, debug
+  format: json  # Options: json, text
+  outputPath: ./logs
+
+cache:
+  enabled: true
+  ttl: 3600  # 1 hour
+  maxSize: 1000  # Maximum cached items

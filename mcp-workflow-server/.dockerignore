@@ -1,0 +1,48 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# Build output (will be built in container)
+dist/
+*.tsbuildinfo
+
+# Test files
+tests/
+coverage/
+*.test.ts
+*.spec.ts
+test-*.js
+quick-perf-test.js
+
+# Development files
+.git/
+.gitignore
+.eslintrc.js
+jest.config.js
+jest-performance.config.js
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment files
+.env*
+
+# Logs (will be created in container)
+logs/
+*.log
+
+# Documentation source files (keep README.md)
+docs/
+
+# Temporary files
+tmp/
+temp/
+*.tmp

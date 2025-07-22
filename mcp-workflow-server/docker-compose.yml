@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  mcp-workflow-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: mcp-workflow-server:latest
+    container_name: mcp-workflow-server
+    ports:
+      - "3000:3000"  # HTTP API
+      - "3001:3001"  # WebSocket
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - LOG_LEVEL=info
+    volumes:
+      # Mount config directory for easy updates
+      - ./config:/app/config:ro
+      # Persist logs
+      - mcp-logs:/app/logs
+      # Persist quality reports
+      - mcp-reports:/app/quality-reports
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/health', (r) => r.statusCode === 200 ? process.exit(0) : process.exit(1))"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    networks:
+      - mcp-network
+
+  # Optional: Add a reverse proxy for production use
+  nginx:
+    image: nginx:alpine
+    container_name: mcp-proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - mcp-workflow-server
+    networks:
+      - mcp-network
+    profiles:
+      - production
+
+volumes:
+  mcp-logs:
+    driver: local
+  mcp-reports:
+    driver: local
+
+networks:
+  mcp-network:
+    driver: bridge

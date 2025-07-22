@@ -1,0 +1,174 @@
+# Example Project Configuration
+
+projectId: example-project
+name: Example React Application
+description: A sample React application with TypeScript and accessibility focus
+rootPath: /path/to/example-project
+
+# Quality Rules Configuration
+rules:
+  typescript:
+    strictTypes: true
+    explicitReturnTypes: true
+    noAnyTypes: true
+    readonlyInterfaces: true
+    maxFileLines: 300
+    importOrganization:
+      order:
+        - react
+        - third-party
+        - internal
+        - relative
+      enforceBlankLines: true
+
+  codeQuality:
+    enforceDesignTokens: true
+    componentStructure:
+      separateConcerns: true
+      maxComplexity: 10
+      enforcePropsInterface: true
+    stateManagement:
+      pattern: zustand
+      enforceImmer: true
+    performanceStandards:
+      requireMemoization: true
+      enforceLoadingStates: true
+      requireErrorBoundaries: true
+
+  accessibility:
+    wcagLevel: AAA
+    keyboardNavigation: true
+    screenReaderSupport: true
+    colorContrastRatio: 7.0
+    internationalization:
+      multiLanguage: true
+      rtlSupport: true
+      contextAwareTranslations: true
+    compliance:
+      norwegian:
+        personalNumberValidation: true
+        postalCodeValidation: true
+        securityClassifications: true
+      gdpr:
+        dataPrivacyPatterns: true
+        consentManagement: true
+        auditTrails: true
+
+  packageSystem:
+    structure:
+      barrelExports: true
+      noCrossDependencies: true
+      cleanArchitecture: true
+    dependencies:
+      versionConsistency: true
+      securityChecks: true
+      allowedScopes:
+        - "@myorg"
+        - "@types"
+    documentation:
+      requireReadme: true
+      jsdocCoverage: 90
+      exampleRequired: true
+
+  businessLogic:
+    errorHandling:
+      typedErrors: true
+      gracefulDegradation: true
+      errorBoundaries: true
+    security:
+      inputValidation: true
+      sanitization: true
+      authenticationPatterns: true
+    apiIntegration:
+      clientPatterns: true
+      retryLogic: true
+      errorHandling: true
+    testing:
+      unitTestCoverage: 80
+      integrationTestRequired: true
+      e2eTestRequired: true
+
+# Quality Thresholds
+thresholds:
+  codeQuality:
+    typeSafetyScore: 95
+    componentComplexity: 10
+    designTokenCompliance: 100
+    testCoverage:
+      unit: 80
+      integration: 70
+      e2e: 60
+
+  architectureQuality:
+    packageCouplingScore: 8
+    componentReusability: 70
+    performanceBudget: 500kb
+    accessibilityScore: 95
+
+  workflowQuality:
+    specificationCompleteness: 90
+    documentationCurrency: 85
+    processAdherence: 95
+    reviewQualityScore: 8
+
+# Automation Hooks
+hooks:
+  fileChange:
+    - id: auto-test-generation
+      name: Generate test files for new components
+      trigger: "**/*.tsx"
+      action: generate-tests
+
+    - id: update-barrel-exports
+      name: Update barrel exports
+      trigger: "**/index.ts"
+      action: update-exports
+
+  qualityAssurance:
+    - id: pre-commit-validation
+      name: Validate code before commit
+      trigger: pre-commit
+      action: validate-all
+
+    - id: accessibility-check
+      name: Check accessibility compliance
+      trigger: "**/*.tsx"
+      action: check-accessibility
+
+  workflowEvents:
+    - id: task-completion
+      name: Update task status
+      trigger: task-complete
+      action: update-status
+
+    - id: spec-sync
+      name: Sync specifications
+      trigger: spec-update
+      action: sync-specs
+
+# Integration Configuration
+integrations:
+  versionControl:
+    type: git
+    hooks:
+      - pre-commit
+      - pre-push
+    branchProtection: true
+
+  cicd:
+    type: github
+    qualityGates: true
+    autoReporting: true
+
+  projectManagement:
+    type: jira
+    syncTasks: true
+    updateStatus: true
+
+  communication:
+    type: slack
+    notifications:
+      - quality-violations
+      - task-completion
+      - deployment-status
+    reportChannel: "#dev-reports"
